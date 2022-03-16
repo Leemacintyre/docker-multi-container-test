@@ -1,0 +1,32 @@
+name: Docker Image CI Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker build -t tempzaq123/react-test -f ./client/Dockerfile.dev ./client
+      - run: docker run -e CI=true tempzaq123/react-test npm test -- --coverage
+
+      - name: build prod images
+        run: docker build -t tempzaq123/multi-client ./client
+          docker build -t tempzaq123/multi-nginx ./nginx
+          docker build -t tempzaq123/multi-server ./server
+          docker build -t tempzaq123/multi-worker ./worker
+
+      - name: push prod images
+        run: docker push tempzaq123/multi-client
+          docker push tempzaq123/multi-nginx
+          docker push tempzaq123/multi-server
+          docker push tempzaq123/multi-worker
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*
