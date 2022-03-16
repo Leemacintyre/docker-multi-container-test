@@ -29,6 +29,3 @@ jobs:
           docker push tempzaq123/multi-nginx
           docker push tempzaq123/multi-server
           docker push tempzaq123/multi-worker
-
-      - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*
